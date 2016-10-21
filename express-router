@@ -1,0 +1,59 @@
+1. app.js
+var express = require("express");
+var route = express.Route();
+var router = express.Router();
+var project = require("./router");
+var app = express();
+app.get("/", function(req, res) {
+	res.send("hello world!");
+})
+// next一次执行到最后一个 four
+app.get("/next", 
+	function(req, res, next) {
+		next();
+	},
+	function(req, res, next) {
+		next();
+	},
+	function(req, res, next) {
+		next();
+	},
+	function(req, res) {
+		res.send("four");
+	}
+)
+// 路由的链式调用， 同一个路由可以同时书写 get, post, put, delete 减少了代码冗余
+app.route("/book")
+	.get(function(req, res) {
+		res.send("get");
+	})
+	.post(function(req, res) {
+		res.send("post");
+	})
+	.put(function(req, res) {
+		res.send("put");
+	})
+	.delete(function(req, res) {
+		res.send("delete");
+	});
+// router外部引入
+app.use("/about", project);
+app.use("/static", express.static("images"));
+var server = app.listen(3000, function() {
+	var host = server.address().address;
+	var port = server.address().port;
+	console.log(host + port);
+})
+
+2. router.js
+var express = require("express");
+
+var router = express.Router();
+router.get("/", function(req, res) {
+	res.send("router/");
+})
+router.get("/about", function(req, res, next) {
+	res.send("about");
+	next();
+})
+module.exports = router;
